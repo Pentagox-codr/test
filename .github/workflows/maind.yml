@@ -1,0 +1,36 @@
+name: uh
+
+on: [workflow_dispatch]
+
+jobs:
+  rdp:
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Create user safely
+        run: |
+          net user admintest YourPassword123! /add
+          net localgroup administrators admintest /add
+
+      - name: Enable RDP
+        run: |
+          reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+      - name: Download cloudflared
+        run: |
+          Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
+
+      - name: Start Cloudflare Tunnel
+        run: |
+          Start-Process -NoNewWindow -FilePath ".\cloudflared.exe" -ArgumentList "tunnel --url tcp://localhost:3389"
+
+      - name: Show connection info
+        run: |
+          Start-Sleep -Seconds 10
+          Get-Process cloudflared
+
+      - name: Keep alive
+        run: |
+          Start-Sleep -Seconds 21600
