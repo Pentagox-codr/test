@@ -8,10 +8,10 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Create user
+      - name: Create user safely
         run: |
-          net user runneradmin YourPassword123!
-          net localgroup administrators runneradmin /add
+          net user runneradmin >nul 2>&1 || net user runneradmin YourPassword123! /add
+          net localgroup administrators | findstr /i runneradmin >nul || net localgroup administrators runneradmin /add
 
       - name: Enable RDP
         run: |
