@@ -21,12 +21,8 @@ jobs:
       - name: Start Cloudflare Tunnel
         run: |
           Start-Process -NoNewWindow -FilePath ".\cloudflared.exe" -ArgumentList "tunnel --url tcp://localhost:3389"
-
-      - name: Show connection info
-        run: |
           Start-Sleep -Seconds 10
-          Get-Process cloudflared
-
+          
       - name: Keep alive
         run: |
           Start-Sleep -Seconds 21600
