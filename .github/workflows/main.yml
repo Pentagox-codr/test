@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Create user safely
         run: |
-          net user runneradmin >nul 2>&1 || net user runneradmin YourPassword123! /add
-          net localgroup administrators | findstr /i runneradmin >nul || net localgroup administrators runneradmin /add
+          net user admintest YourPassword123! /add
+          net localgroup administrators admintest /add
 
       - name: Enable RDP
         run: |
