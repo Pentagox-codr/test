@@ -8,10 +8,6 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Create user safely
-        run: |
-          net user admintest YourPassword123! /add
-          net localgroup administrators admintest /add
 
       - name: Enable RDP
         run: |
