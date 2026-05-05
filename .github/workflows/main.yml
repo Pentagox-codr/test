@@ -1,6 +1,7 @@
-name: Windows RDP (Cloudflare)
+name: Windows RDP (ngrok)
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
 
 jobs:
   rdp:
@@ -14,15 +15,23 @@ jobs:
           reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Download cloudflared
+      - name: Download ngrok
         run: |
-          Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
+          Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+          Expand-Archive ngrok.zip
 
-      - name: Start Cloudflare Tunnel
+      - name: Auth ngrok
         run: |
-          Start-Process -NoNewWindow -FilePath ".\cloudflared.exe" -ArgumentList "tunnel --url tcp://localhost:3389"
-          Start-Sleep -Seconds 10
-          
+          .\ngrok\ngrok.exe authtoken $env:NGROK_TOKEN
+        env:
+          NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
+
+      - name: Start tunnel
+        run: |
+          Start-Process -NoNewWindow -FilePath ".\ngrok\ngrok.exe" -ArgumentList "tcp 3389"
+
+      - name: Wait for tunnel
+        run: Start-Sleep -Seconds 10
+
       - name: Keep alive
-        run: |
-          Start-Sleep -Seconds 21600
+        run: Start-Sleep -Seconds 21600
